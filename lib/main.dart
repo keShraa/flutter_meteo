@@ -40,6 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String key = "Villes";
   List<String> cities = [];
   String chosenCity;
+  Coordinates coordsChosenCity;
 
   Location location;
   LocationData locationData;
@@ -101,6 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   onTap: () {
                     setState(() {
                       chosenCity = city;
+                      coordsFromCity();
                       Navigator.pop(context);
                     });
                   },
@@ -211,6 +213,20 @@ class _MyHomePageState extends State<MyHomePage> {
       Coordinates coordinates = Coordinates(locationData.latitude, locationData.longitude);
       final cityName = await Geocoder.local.findAddressesFromCoordinates(coordinates);
       print(cityName.first.locality);
+    }
+  }
+
+  coordsFromCity() async {
+    if (chosenCity != null) {
+      List<Address> addresses = await Geocoder.local.findAddressesFromQuery(chosenCity);
+      if (addresses.length > 0) {
+        Address first = addresses.first;
+        Coordinates coords = first.coordinates;
+        setState(() {
+          coordsChosenCity = coords;
+          print(coordsChosenCity);
+        });
+      }
     }
   }
 }
