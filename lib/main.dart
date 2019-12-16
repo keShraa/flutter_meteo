@@ -168,11 +168,13 @@ class _MyHomePageState extends State<MyHomePage> {
   listenToStream() {
     stream = location.onLocationChanged();
     stream.listen((newPosition) {
-      print("New => ${newPosition.latitude} ------ ${newPosition.longitude}");
-      setState(() {
-        locationData = newPosition;
-        locationToString();
-      });
+      if ((locationData == null) || (newPosition.longitude != locationData.longitude) && (newPosition.latitude != locationData.latitude)) {
+        setState(() {
+          print("New => ${newPosition.latitude} ------ ${newPosition.longitude}");
+          locationData = newPosition;
+          locationToString();
+        });
+      }
     });
   }
 
