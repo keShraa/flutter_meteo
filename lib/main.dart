@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:location/location.dart';
+import 'package:geocoder/geocoder.dart';
 
 void main() {
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -39,11 +41,18 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> cities = [];
   String chosenCity;
 
+  Location location;
+  LocationData locationData;
+  Stream<LocationData> stream;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getSharedPreferences();
+    location = Location();
+    // getFirstLocation();
+    listenToStream();
   }
 
   @override
@@ -143,6 +152,32 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  // ------ Location ------
+  // Once
+  getFirstLocation() async {
+    try {
+      locationData = await location.getLocation();
+      print("Nouvelle position : ${locationData.latitude} / ${locationData.longitude}");
+      locationToString();
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+  // Each Change
+  listenToStream() {
+    stream = location.onLocationChanged();
+    stream.listen((newPosition) {
+      print("New => ${newPosition.latitude} ------ ${newPosition.longitude}");
+      setState(() {
+        locationData = newPosition;
+        locationToString();
+      });
+    });
+  }
+
+  // ------ SharedPreferences ------
+
   void getSharedPreferences() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     List<String> list = await sharedPreferences.getStringList(key);
@@ -165,5 +200,15 @@ class _MyHomePageState extends State<MyHomePage> {
     cities.remove(str);
     await sharedPreferences.setStringList(key, cities);
     getSharedPreferences();
+  }
+
+  // ------ Geocoder ------
+
+  locationToString() async {
+    if (locationData != null) {
+      Coordinates coordinates = Coordinates(locationData.latitude, locationData.longitude);
+      final cityName = await Geocoder.local.findAddressesFromCoordinates(coordinates);
+      print(cityName.first.locality);
+    }
   }
 }
