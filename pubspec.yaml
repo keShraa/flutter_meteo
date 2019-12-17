@@ -60,6 +60,12 @@ flutter:
     - assets/11.png
     - assets/13.png
     - assets/50.png
+
+  fonts:
+    - family: Typicons
+      fonts:
+        - asset: fluttericons/fonts/Typicons.ttf
+
   #  - images/a_dot_burr.jpeg
   #  - images/a_dot_ham.jpeg
 

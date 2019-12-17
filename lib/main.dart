@@ -9,6 +9,8 @@ import 'package:geocoder/geocoder.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import "dart:convert";
+import 'typicons_icons.dart';
+
 
 Future main() async {
   // Load .env and API_KEY
@@ -138,7 +140,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             styledText((chosenCity == null) ? "Ville actuelle" : chosenCity, fontSize: 40.0),
-            styledText(temperature.description, fontSize: 24.0, fontStyle: FontStyle.italic, fontWeight: FontWeight.w300),
+            styledText(temperature.description, fontSize: 24.0, fontWeight: FontWeight.w300),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
@@ -146,9 +148,29 @@ class _MyHomePageState extends State<MyHomePage> {
                 styledText("${temperature.temp.toInt()} °C", fontSize: 60.0),
               ],
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                extraInfos("${temperature.tempMin.toInt()} °C", Typicons.down),
+                extraInfos("${temperature.tempMax.toInt()} °C", Typicons.up),
+                extraInfos("${temperature.pressure} hPa", Typicons.temperatire),
+                extraInfos("${temperature.humidity} %", Typicons.drizzle),
+              ],
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Column extraInfos(String data, IconData iconData) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        Icon(iconData, color: Colors.white, size: 32.0),
+        Padding(padding: EdgeInsets.symmetric(vertical: 4.0),),
+        styledText(data),
+      ],
     );
   }
 
@@ -196,7 +218,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   AssetImage getBackground() {
-    print(temperature.icon);
     if (temperature.icon.contains("n")) {
       return night;
     } else {
