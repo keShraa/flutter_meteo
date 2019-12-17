@@ -4,8 +4,8 @@ class Temperature {
   String description;
   String icon;
   var temp;
-  var temp_min;
-  var temp_max;
+  var tempMin;
+  var tempMax;
   var pressure;
   var humidity;
 
@@ -19,8 +19,8 @@ class Temperature {
 
     Map mainMap = map["main"];
     this.temp = mainMap["temp"];
-    this.temp_min = mainMap["temp_min"];
-    this.temp_max = mainMap["temp_max"];
+    this.tempMin = mainMap["temp_min"];
+    this.tempMax = mainMap["temp_max"];
     this.pressure = mainMap["pressure"];
     this.humidity = mainMap["humidity"];
   }
