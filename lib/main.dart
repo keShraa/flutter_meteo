@@ -50,6 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> cities = [];
   String chosenCity;
   Coordinates coordsChosenCity;
+  String nameCurrent = "Ville actuelle";
 
   Temperature temperature;
 
@@ -98,11 +99,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               } else if (i == 1) {
                 return new ListTile(
-                  title: styledText("Ma ville actuelle"),
+                  title: styledText(nameCurrent),
                   onTap: () {
                     setState(() {
                       chosenCity = null;
                       coordsChosenCity = null;
+                      weatherApi();
                       Navigator.pop(context);
                     });
                   },
@@ -129,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       body: (temperature == null)
-          ? Center(child: Text((chosenCity == null)? "Ville actuelle": chosenCity))
+          ? Center(child: Text((chosenCity == null)? nameCurrent: chosenCity))
           : Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -139,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            styledText((chosenCity == null) ? "Ville actuelle" : chosenCity, fontSize: 40.0),
+            styledText((chosenCity == null) ? nameCurrent : chosenCity, fontSize: 40.0),
             styledText(temperature.description, fontSize: 24.0, fontWeight: FontWeight.w300),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -153,8 +155,8 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 extraInfos("${temperature.tempMin.toInt()} °C", Typicons.down),
                 extraInfos("${temperature.tempMax.toInt()} °C", Typicons.up),
-                extraInfos("${temperature.pressure} hPa", Typicons.temperatire),
-                extraInfos("${temperature.humidity} %", Typicons.drizzle),
+                extraInfos("${temperature.pressure.toInt()} hPa", Typicons.temperatire),
+                extraInfos("${temperature.humidity.toInt()} %", Typicons.drizzle),
               ],
             ),
           ],
@@ -286,8 +288,11 @@ class _MyHomePageState extends State<MyHomePage> {
   locationToString() async {
     if (locationData != null) {
       Coordinates coordinates = Coordinates(locationData.latitude, locationData.longitude);
-      await Geocoder.local.findAddressesFromCoordinates(coordinates);
-      weatherApi();
+      final cityName = await Geocoder.local.findAddressesFromCoordinates(coordinates);
+      setState(() {
+        nameCurrent = cityName.first.locality;
+        weatherApi();
+      });
     }
   }
 
