@@ -5,8 +5,13 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:location/location.dart';
 import 'package:geocoder/geocoder.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 
-void main() {
+Future main() async {
+  // Load .env and API_KEY
+  await DotEnv().load('.env');
+
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(MyApp());
 }
@@ -87,6 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   onTap: () {
                     setState(() {
                       chosenCity = null;
+                      coordsChosenCity = null;
                       Navigator.pop(context);
                     });
                   },
@@ -213,6 +219,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Coordinates coordinates = Coordinates(locationData.latitude, locationData.longitude);
       final cityName = await Geocoder.local.findAddressesFromCoordinates(coordinates);
       print(cityName.first.locality);
+      weatherApi();
     }
   }
 
@@ -224,9 +231,39 @@ class _MyHomePageState extends State<MyHomePage> {
         Coordinates coords = first.coordinates;
         setState(() {
           coordsChosenCity = coords;
-          print(coordsChosenCity);
+          weatherApi();
         });
       }
     }
   }
+
+
+  // ------ Call API ------
+
+  weatherApi() async {
+    double lat;
+    double lon;
+    if (coordsChosenCity != null) {
+      lat = coordsChosenCity.latitude;
+      lon = coordsChosenCity.longitude;
+    } else if (locationData != null) {
+      lat = locationData.latitude;
+      lon = locationData.longitude;
+    }
+
+    if (lat != null && lon != null) {
+      final key = "&APPID=${DotEnv().env['API_KEY']}";
+      String lang = "&lang=${Localizations.localeOf(context).languageCode}";
+      String baseAPI = "http://api.openweathermap.org/data/2.5/weather?";
+      String coordsString = "lat=$lat&lon=$lon";
+      String units = "&units=metrics";
+      String totalString = baseAPI + coordsString + units + lang + key;
+      final response = await http.get(totalString);
+      if (response.statusCode == 200) {
+        print(totalString);
+        print(response.body);
+      }
+    }
+  }
+
 }
